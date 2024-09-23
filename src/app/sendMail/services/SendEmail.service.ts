@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+
+import { IEmail } from '../entities/Email';
+
 dotenv.config();
 
 const smtpConfig = {
@@ -12,16 +15,22 @@ const smtpConfig = {
   }
 };
 
-export const sendEmail = (to: string, subject: string, body: string) => {
+export const sendEmail = (email: IEmail) => {
   const transporter = nodemailer.createTransport(smtpConfig);
-
 
   const send = () => {
     transporter.sendMail({
       from: process.env.MAIL_USER,
-      to,
-      subject,
-      text: body,
+      to: email.to,
+      subject: email.subject,
+      attachments: [
+        {
+          filename: email.filename,
+          path: email.path,
+          cid: email.cid
+        }
+      ],
+      text: email.body,
     });
 
     transporter.verify((error) => {
